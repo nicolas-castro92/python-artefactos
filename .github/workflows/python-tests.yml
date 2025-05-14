@@ -28,6 +28,7 @@ jobs:
           python -m xmlrunner discover -s tests -o test-results
 
       - name: Subir resultados como artefacto
+        if: always() 
         uses: actions/upload-artifact@v4
         with:
           name: unittest-resultados
