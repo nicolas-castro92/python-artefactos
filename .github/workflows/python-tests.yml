@@ -1,17 +1,15 @@
-name: Python Tests
+name: Python Unittest + Reporte XML
 
 on:
-  push:
-    branches: [ main ]
   pull_request:
-    branches: [ main ]
+    branches: [main]
 
 jobs:
   test:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout del repositorio
+      - name: Checkout del código
         uses: actions/checkout@v4
 
       - name: Configurar Python
@@ -21,22 +19,22 @@ jobs:
 
       - name: Instalar dependencias
         run: |
+          python -m pip install --upgrade pip
           pip install -r requirements.txt
-          pip install coverage pytest-github-actions-annotate-failures
 
-      - name: Ejecutar tests con anotaciones y generar cobertura
+      - name: Ejecutar unittest y guardar en XML
         run: |
-          coverage run -m pytest --tb=short --annotate-failures
-          coverage html -d coverage_html
-          coverage xml -o coverage.xml
+          mkdir -p test-results
+          python -m xmlrunner discover -s tests -o test-results
 
-      - name: Subir reporte de cobertura como artefacto
+      - name: Subir resultados como artefacto
         uses: actions/upload-artifact@v4
         with:
-          name: reporte-cobertura-html
-          path: coverage_html
+          name: unittest-resultados
+          path: test-results
 
-      - name: Añadir comentario con cobertura al PR
-        uses: romeovs/coverage-comment-action@v1
+      - name: Anotar fallos en el PR
+        uses: mikepenz/action-junit-report@v4
+        if: always()  # Se ejecuta incluso si los tests fallan
         with:
-          coverage-file: coverage.xml
+          report_paths: 'test-results/*.xml'

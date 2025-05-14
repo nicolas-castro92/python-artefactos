@@ -1,3 +1,4 @@
 pytest
 coverage
 pytest-github-actions-annotate-failures
+unittest-xml-reporting
