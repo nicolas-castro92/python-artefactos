@@ -1,0 +1,35 @@
+# Bytecode de Python
+__pycache__/
+*.py[cod]
+*.pyo
+
+# Entornos virtuales
+env/
+venv/
+.venv/
+
+# Archivos de cobertura de tests
+.coverage
+htmlcov/
+coverage_html/
+
+# Informes de pytest
+.cache/
+*.log
+
+# Configs de herramientas
+.mypy_cache/
+.pytest_cache/
+.dmypy.json
+.pyre/
+
+# Archivos de sistema
+.DS_Store
+Thumbs.db
+
+# Artefactos
+*.zip
+*.tar.gz
+*.egg-info/
+dist/
+build/
