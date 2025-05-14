@@ -1,4 +1,4 @@
-name: Python Unittest + Reporte XML
+name: Python Unittest + Cobertura + PR Anotaciones
 
 on:
   pull_request:
@@ -22,20 +22,36 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      - name: Ejecutar unittest y guardar en XML
+      - name: Ejecutar tests con cobertura
         run: |
           mkdir -p test-results
-          python -m xmlrunner discover -s tests -o test-results
+          coverage run -m xmlrunner discover -s tests -o test-results
+          coverage xml -o coverage.xml
+          coverage html -d coverage_html
 
-      - name: Subir resultados como artefacto
-        if: always() 
+      - name: Subir reportes como artefacto
+        if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: unittest-resultados
-          path: test-results
+          name: reportes
+          path: |
+            test-results
+            coverage_html
 
-      - name: Anotar fallos en el PR
+      - name: Anotar errores de tests en el PR
         uses: mikepenz/action-junit-report@v4
-        if: always()  # Se ejecuta incluso si los tests fallan
+        if: always()
         with:
           report_paths: 'test-results/*.xml'
+
+      - name: Comentar cobertura en el PR
+        uses: orgoro/coverage@v3.2
+        if: always()
+        with:
+          coverageFile: coverage.xml
+          token: ${{ secrets.GITHUB_TOKEN }}
+          thresholdAll: 0.8
+          thresholdNew: 0.9
+          thresholdModified: 0.5
+          passIcon: '🟢'
+          failIcon: '🔴'
