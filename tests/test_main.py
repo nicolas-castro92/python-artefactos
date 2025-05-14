@@ -3,7 +3,7 @@ from app.main import suma, resta
 
 class TestCalc(unittest.TestCase):
     def test_suma(self):
-        self.assertEqual(suma(2, 3), 5)
+        self.assertEqual(suma(2, 3), 999)
 
     def test_resta(self):
         self.assertEqual(resta(5, 2), 3)
