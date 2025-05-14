@@ -1,2 +1,3 @@
 pytest
 coverage
+pytest-github-actions-annotate-failures

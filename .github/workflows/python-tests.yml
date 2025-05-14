@@ -11,32 +11,32 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # 1. Checkout del código fuente
       - name: Checkout del repositorio
         uses: actions/checkout@v4
 
-      # 2. Configuración de Python
       - name: Configurar Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.10'
 
-      # 3. Instalar dependencias
       - name: Instalar dependencias
         run: |
-          python -m pip install --upgrade pip
           pip install -r requirements.txt
-          pip install pytest coverage
+          pip install coverage pytest-github-actions-annotate-failures
 
-      # 4. Ejecutar tests y generar el reporte de cobertura
-      - name: Ejecutar tests y generar cobertura
+      - name: Ejecutar tests con anotaciones y generar cobertura
         run: |
-          coverage run -m pytest
+          coverage run -m pytest --tb=short --annotate-failures
           coverage html -d coverage_html
+          coverage xml -o coverage.xml
 
-      # 5. Subir el reporte de cobertura como artefacto
       - name: Subir reporte de cobertura como artefacto
         uses: actions/upload-artifact@v4
         with:
           name: reporte-cobertura-html
           path: coverage_html
+
+      - name: Añadir comentario con cobertura al PR
+        uses: romeovs/coverage-comment-action@v1
+        with:
+          coverage-file: coverage.xml
