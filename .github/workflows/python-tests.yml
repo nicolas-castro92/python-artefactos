@@ -1,4 +1,4 @@
-name: Python Unittest + Cobertura + PR Anotaciones
+name: Python Unittest + Coverage + SonarQube
 
 on:
   pull_request:
@@ -9,8 +9,8 @@ jobs:
     runs-on: ubuntu-latest
 
     permissions:
-        checks: write
-        pull-requests: write
+      checks: write
+      pull-requests: write
 
     steps:
       - name: Checkout del código
@@ -26,42 +26,60 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      - name: Ejecutar tests con cobertura
+      - name: Ejecutar tests con coverage
         run: |
           mkdir -p test-results
-          coverage run -m xmlrunner discover -s tests -o test-results || true
-          coverage xml -o coverage.xml || true
-          coverage html -d coverage_html || true
+          coverage run -m xmlrunner discover -s tests -o test-results
+          coverage html -d coverage_html
+          coverage xml -o coverage.xml
 
-      - name: Subir reportes como artefacto
-        if: always()
+      - name: Subir resultados como artefacto
         uses: actions/upload-artifact@v4
         with:
-          name: reportes
+          name: coverage-artifacts
           path: |
-            test-results
+            .coverage
+            coverage.xml
             coverage_html
+            test-results
+
+  coverage:
+    needs: test
+    runs-on: ubuntu-latest
+
+    permissions:
+      checks: write
+      pull-requests: write
+
+    steps:
+      - name: Checkout del código
+        uses: actions/checkout@v4
+
+      - name: Configurar Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+
+      - name: Descargar artefactos de cobertura
+        uses: actions/download-artifact@v4
+        with:
+          name: coverage-artifacts
 
       - name: Anotar errores de tests en el PR
         uses: mikepenz/action-junit-report@v4
-        if: always()
         with:
           report_paths: 'test-results/*.xml'
 
       - name: Comentar cobertura en el PR
         uses: orgoro/coverage@v3.2
-        if: always()
         with:
           coverageFile: coverage.xml
           token: ${{ secrets.GITHUB_TOKEN }}
           thresholdAll: 0.8
           thresholdNew: 0.9
           thresholdModified: 0.5
-    
-      - name: Run SonarQube scan
+
+      - name: Escanear con SonarQube
         uses: SonarSource/sonarqube-scan-action@v4
         env:
-         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-
-       
-        
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
