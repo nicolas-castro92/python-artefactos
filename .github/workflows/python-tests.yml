@@ -57,3 +57,11 @@ jobs:
           thresholdAll: 0.8
           thresholdNew: 0.9
           thresholdModified: 0.5
+    
+      - name: Run SonarQube scan
+        uses: SonarSource/sonarqube-scan-action@v4.1.0
+        env:
+         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+
+       
+        
