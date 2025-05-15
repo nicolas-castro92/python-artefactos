@@ -65,4 +65,4 @@ jobs:
         with:
           args: >
             -Dsonar.organization=nicolas-castro92
-            -Dsonar.projectKey=python-artefactos
+            -Dsonar.projectKey=nicolas-castro92_python-artefactos
