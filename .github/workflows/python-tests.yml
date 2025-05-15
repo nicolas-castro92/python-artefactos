@@ -35,6 +35,7 @@ jobs:
 
       - name: Subir resultados como artefacto
         uses: actions/upload-artifact@v4
+        if: always()
         with:
           name: coverage-artifacts
           path: |
