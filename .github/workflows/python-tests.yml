@@ -1,4 +1,4 @@
-name: Python Unittest + Coverage + SonarQube
+name: Python Tests + Coverage + Reportes
 
 on:
   pull_request:
@@ -26,14 +26,15 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      - name: Ejecutar tests con coverage
+      - name: Ejecutar tests con cobertura
         run: |
           mkdir -p test-results
           coverage run -m xmlrunner discover -s tests -o test-results
-          coverage html -d coverage_html
           coverage xml -o coverage.xml
+          coverage html -d coverage_html
 
       - name: Subir resultados como artefacto
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: coverage-artifacts
@@ -43,34 +44,14 @@ jobs:
             coverage_html
             test-results
 
-  coverage:
-    needs: test
-    runs-on: ubuntu-latest
-
-    permissions:
-      checks: write
-      pull-requests: write
-
-    steps:
-      - name: Checkout del código
-        uses: actions/checkout@v4
-
-      - name: Configurar Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.10'
-
-      - name: Descargar artefactos de cobertura
-        uses: actions/download-artifact@v4
-        with:
-          name: coverage-artifacts
-
       - name: Anotar errores de tests en el PR
+        if: always()
         uses: mikepenz/action-junit-report@v4
         with:
           report_paths: 'test-results/*.xml'
 
       - name: Comentar cobertura en el PR
+        if: always()
         uses: orgoro/coverage@v3.2
         with:
           coverageFile: coverage.xml
@@ -79,7 +60,7 @@ jobs:
           thresholdNew: 0.9
           thresholdModified: 0.5
 
-      - name: Escanear con SonarQube
+      - name: Escaneo SonarQube
         uses: SonarSource/sonarqube-scan-action@v4
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
